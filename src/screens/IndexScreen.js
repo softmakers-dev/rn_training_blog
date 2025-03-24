@@ -1,4 +1,4 @@
-import React, { useContext, useLayoutEffect } from 'react';
+import React, { useContext, useLayoutEffect, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Button, TouchableOpacity } from "react-native";
 import {Context} from "../context/BlogContext";
 import {FontAwesome6, Feather} from '@expo/vector-icons';
@@ -7,7 +7,7 @@ import {useNavigation} from "@react-navigation/native";
 
 const IndexScreen = () => {
 
-    const {state, addBlogPost, deleteBlogPost} = useContext(Context);
+    const {state, addBlogPost, deleteBlogPost, getBlogPosts} = useContext(Context);
     const navigation = useNavigation();
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -19,9 +19,20 @@ const IndexScreen = () => {
         });
     }, [navigation]);
 
+    useEffect(() => {
+        getBlogPosts();
+
+        const listener = navigation.addListener('focus',() => {
+            getBlogPosts();
+        });
+
+        return () => {
+            listener.remove();
+        }
+    }, [])
+
     return (
         <View>
-            <Button title="Add Post" onPress={addBlogPost} />
             <FlatList
                 data={state}
                 keyExtractor={(blogPost) => blogPost.title}
